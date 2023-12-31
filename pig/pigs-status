@@ -1,0 +1,149 @@
+#!/bin/dash
+
+if [ ! -d ".pig" ]
+then 
+    echo "pigs-status: error: pigs repository directory .pig not found"
+    exit 1 
+fi 
+
+for file in *
+do 
+    if [ -f "$file" ]
+    then
+        if [ ! -f ".pig/index/$file" ] && [ ! -f ".pig/$file" ] 
+        then
+            echo "$file - untracked" >> ".pig/status/status.txt"
+        elif [ -f ".pig/index/$file" ] && [ -f ".pig/$file" ]
+        then 
+            if cmp -s "$file" ".pig/index/$file" && cmp -s "$file" ".pig/$file"
+            then
+                echo "$file - same as repo" >> ".pig/status/status.txt"
+            elif ! cmp -s "$file" ".pig/index/$file" && ! cmp -s "$file" ".pig/$file" && ! cmp -s ".pig/$file" ".pig/index/$file"
+            then 
+                echo "$file - file changed, different changes staged for commit" >> ".pig/status/status.txt"
+            elif cmp -s "$file" ".pig/index/$file" && ! cmp -s "$file" ".pig/$file"
+            then 
+                echo "$file - file changed, changes staged for commit" >> ".pig/status/status.txt"
+            elif cmp -s ".pig/index/$file" ".pig/$file" && ! cmp -s "$file" ".pig/$file"
+            then 
+                echo "$file - file changed, changes not staged for commit" >> ".pig/status/status.txt"
+            fi 
+        elif [ ! -f ".pig/index/$file" ] && [ -f ".pig/$file" ]
+        then 
+            echo "$file - deleted from index" >> ".pig/status/status.txt"
+        elif [ -f ".pig/index/$file" ] && [ ! -f ".pig/$file" ]
+        then 
+            if cmp -s "$file" ".pig/index/$file"
+            then
+                echo "$file - added to index" >> ".pig/status/status.txt"
+            else 
+                echo "$file - added to index, file changed" >> ".pig/status/status.txt"
+            fi
+        fi
+    else 
+        if [ ! -f ".pig/index/$file" ] && [ -f ".pig/$file" ]
+        then
+            echo "$file - deleted from index" >> ".pig/status/status.txt"
+        fi  
+    fi 
+done
+
+for filePath in ".pig"/*
+do
+    file=$(echo "$filePath" | cut -d'/' -f2)
+    if [ -f "$file" ]
+    then
+        if [ ! -f ".pig/index/$file" ] && [ ! -f ".pig/$file" ] 
+        then
+            echo "$file - untracked" >> ".pig/status/status.txt"
+        elif [ -f ".pig/index/$file" ] && [ -f ".pig/$file" ]
+        then 
+            if cmp -s "$file" ".pig/index/$file" && cmp -s "$file" ".pig/$file"
+            then
+                echo "$file - same as repo" >> ".pig/status/status.txt"
+            elif ! cmp -s "$file" ".pig/index/$file" && ! cmp -s "$file" ".pig/$file" && ! cmp -s ".pig/$file" ".pig/index/$file"
+            then 
+                echo "$file - file changed, different changes staged for commit" >> ".pig/status/status.txt"
+            elif cmp -s "$file" ".pig/index/$file" && ! cmp -s "$file" ".pig/$file"
+            then 
+                echo "$file - file changed, changes staged for commit" >> ".pig/status/status.txt"
+            elif cmp -s ".pig/index/$file" ".pig/$file" && ! cmp -s "$file" ".pig/$file"
+            then 
+                echo "$file - file changed, changes not staged for commit" >> ".pig/status/status.txt"
+            fi 
+        elif [ ! -f ".pig/index/$file" ] && [ -f ".pig/$file" ]
+        then 
+            echo "$file - deleted from index" >> ".pig/status/status.txt"
+        elif [ -f ".pig/index/$file" ] && [ ! -f ".pig/$file" ]
+        then 
+            if cmp -s "$file" ".pig/index/$file"
+            then
+                echo "$file - added to index" >> ".pig/status/status.txt"
+            else 
+                echo "$file - added to index, file changed" >> ".pig/status/status.txt"
+            fi
+        fi
+    else 
+        if [ ! -f ".pig/index/$file" ] && [ -f ".pig/$file" ]
+        then
+            echo "$file - file deleted, deleted from index" >> ".pig/status/status.txt"
+        elif [ -f ".pig/index/$file" ] && [ -f ".pig/$file" ]
+        then 
+            echo "$file - file deleted" >> ".pig/status/status.txt"
+        fi  
+    fi 
+done 
+
+for filePath in ".pig/index"/*
+do
+    file=$(echo "$filePath" | cut -d'/' -f3)
+    if [ -f "$file" ]
+    then
+        if [ ! -f ".pig/index/$file" ] && [ ! -f ".pig/$file" ] 
+        then
+            echo "$file - untracked" >> ".pig/status/status.txt"
+        elif [ -f ".pig/index/$file" ] && [ -f ".pig/$file" ]
+        then 
+            if cmp -s "$file" ".pig/index/$file" && cmp -s "$file" ".pig/$file"
+            then
+                echo "$file - same as repo" >> ".pig/status/status.txt"
+            elif ! cmp -s "$file" ".pig/index/$file" && ! cmp -s "$file" ".pig/$file" && ! cmp -s ".pig/$file" ".pig/index/$file"
+            then 
+                echo "$file - file changed, different changes staged for commit" >> ".pig/status/status.txt"
+            elif cmp -s "$file" ".pig/index/$file" && ! cmp -s "$file" ".pig/$file"
+            then 
+                echo "$file - file changed, changes staged for commit" >> ".pig/status/status.txt"
+            elif cmp -s ".pig/index/$file" ".pig/$file" && ! cmp -s "$file" ".pig/$file"
+            then 
+                echo "$file - file changed, changes not staged for commit" >> ".pig/status/status.txt"
+            fi 
+        elif [ ! -f ".pig/index/$file" ] && [ -f ".pig/$file" ]
+        then 
+            echo "$file - deleted from index" >> ".pig/status/status.txt"
+        elif [ -f ".pig/index/$file" ] && [ ! -f ".pig/$file" ]
+        then 
+            if cmp -s "$file" ".pig/index/$file"
+            then
+                echo "$file - added to index" >> ".pig/status/status.txt"
+            else 
+                echo "$file - added to index, file changed" >> ".pig/status/status.txt"
+            fi
+        fi
+    else 
+        if [ ! -f ".pig/index/$file" ] && [ -f ".pig/$file" ]
+        then
+            echo "$file - file deleted, deleted from index" >> ".pig/status/status.txt"
+        elif [ -f ".pig/index/$file" ] && [ -f ".pig/$file" ]
+        then 
+            echo "$file - file deleted" >> ".pig/status/status.txt"
+        elif [ -f ".pig/index/$file" ] && [ ! -f ".pig/$file" ]
+        then 
+            echo "$file - added to index, file deleted" >> ".pig/status/status.txt"
+        fi  
+    fi 
+done 
+
+cat < ".pig/status/status.txt" | sort | uniq
+
+rm ".pig/status/status.txt"
+touch ".pig/status/status.txt"

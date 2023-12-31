@@ -1,0 +1,51 @@
+#!/bin/dash
+
+PATH=$PATH:.
+
+if [ ! -d ".pig" ]
+then 
+    echo "pigs-show: error: pigs repository directory .pig not found"
+    exit 1 
+fi 
+
+args=$1
+
+commit=$(echo "$args" | cut -d':' -f1)
+fileName=$(echo "$args" | cut -d':' -f2)
+
+if [ -z "$commit" ]
+then
+    if [ -f ".pig/index/$fileName" ]
+    then
+        cat < ".pig/index/$fileName"
+    else 
+        echo "pigs-show: error: '$fileName' not found in index"
+        exit 1
+    fi
+
+    if [ "$args" = ":" ]
+    then
+        echo "pigs-show: error: invalid filename ''"
+        exit 1
+    fi 
+else 
+    if [ ! -d ".pig/commits/$commit" ]
+    then 
+        echo "pigs-show: error: unknown commit '$commit'"
+        exit 1
+    fi
+
+    if [ "$args" = ":" ]
+    then
+        echo "pigs-show: error: invalid filename ''"
+        exit 1
+    fi 
+
+    if [ -f ".pig/commits/$commit/$fileName" ]
+    then
+        cat < ".pig/commits/$commit/$fileName"
+    else 
+        echo "pigs-show: error: '$fileName' not found in commit $commit"
+        exit 1
+    fi
+fi

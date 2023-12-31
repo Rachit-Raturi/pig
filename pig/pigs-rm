@@ -1,0 +1,118 @@
+#!/bin/dash
+
+force=false 
+cached=false
+
+if [ ! -d ".pig" ]
+then 
+    echo "pigs-rm: error: pigs repository directory .pig not found"
+    exit 1 
+fi 
+
+
+for arg in "$@"
+do 
+
+    if [ "$arg" = "--force" ]
+    then 
+        force=true
+        continue
+    fi
+
+    if [ "$arg" = "--cached" ]
+    then 
+        cached=true 
+        continue
+    fi 
+
+    if [ "$cached" = "true" ]
+    then
+        if [ -f ".pig/index/$arg" ] 
+        then
+            if [ -f ".pig/$arg" ] 
+            then 
+                if ! cmp -s ".pig/index/$arg" ".pig/$arg" && ! cmp -s ".pig/index/$arg" "$arg"
+                then
+                    if [ "$force" = "false" ]
+                    then
+                        echo "pigs-rm: error: '$arg' in index is different to both the working file and the repository"
+                        exit 1
+                    else 
+                        rm ".pig/index/$arg"
+                        continue
+                    fi
+                fi 
+            fi
+        else 
+            echo "pigs-rm: error: '$arg' is not in the pigs repository"
+            exit 1
+        fi 
+        rm ".pig/index/$arg"
+        continue
+    else
+        if [ -f ".pig/index/$arg" ]
+        then 
+            if [ -f ".pig/$arg" ]
+            then
+                if cmp -s ".pig/$arg" ".pig/index/$arg"
+                then
+                    if cmp -s ".pig/$arg" "$arg"
+                    then 
+                        rm ".pig/index/$arg"
+                        rm "$arg"
+                        continue
+                    else 
+                        if [ "$force" = "false" ]
+                        then
+                            echo "pigs-rm: error: '$arg' in the repository is different to the working file"
+                            exit 1
+                        else 
+                            rm ".pig/index/$arg"
+                            rm "$arg"
+                            continue
+                        fi
+                    fi
+                else ! cmp -s ".pig/index/$arg" ".pig/$arg"
+                    if ! cmp -s ".pig/index/$arg" "$arg"
+                    then 
+                        if [ "$force" = "false" ]
+                        then
+                            echo "pigs-rm: error: '$arg' in index is different to both the working file and the repository"
+                            exit 1
+                        else 
+                            rm ".pig/index/$arg"
+                            rm "$arg"
+                            continue
+                        fi
+                    else 
+                        if [ "$force" = "false" ]
+                        then
+                            echo "pigs-rm: error: '$arg' has staged changes in the index"
+                            exit 1
+                        else 
+                            rm ".pig/index/$arg"
+                            rm "$arg"
+                            continue
+                        fi
+                    fi
+                fi
+            else
+                if [ "$force" = "false" ] && [ -f "$arg" ]
+                then
+                    echo "pigs-rm: error: '$arg' has staged changes in the index"
+                    exit 1
+                else
+                    rm ".pig/index/$arg"
+                    if [ -f "$arg" ]
+                    then
+                        rm "$arg" 
+                    fi 
+                    continue
+                fi 
+            fi 
+        else 
+            echo "pigs-rm: error: '$arg' is not in the pigs repository"
+            exit 1
+        fi 
+    fi 
+done

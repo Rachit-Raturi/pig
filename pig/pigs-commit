@@ -1,0 +1,92 @@
+#!/bin/dash
+
+PATH=$PATH:.
+
+if [ ! -d ".pig" ]
+then 
+    echo "pigs-commit: error: pigs repository directory .pig not found"
+    exit 1 
+fi 
+
+if [ "$1" = "-a" ]
+then
+    message=$3
+    for file in ".pig/index"/*
+    do 
+        if [ -f "$file" ]
+        then
+            fileName=$(echo "$file" | cut -d'/' -f3)
+            if [ -f "$fileName" ]
+            then 
+                cp "$fileName" "$file"
+            else
+                rm "$file" 
+            fi
+        fi 
+    done
+else 
+    message=$2
+fi
+
+
+counter=0
+for commit in ".pig/commits/"*
+do
+    if [ -d "$commit" ]
+    then
+        counter=$((counter + 1)) 
+    fi 
+done
+
+successfull=false
+
+for file in ".pig"/*
+do 
+    fileName=$(echo "$file" | cut -d'/' -f2)
+    if [ -f "$file" ]
+    then
+        if [ ! -f ".pig/index/$fileName" ] 
+        then
+            successfull=true
+            rm "$file"
+        fi
+    fi 
+done 
+
+for file in ".pig/index"/* 
+do
+    if [ -f "$file" ]
+    then 
+        fileName=$(echo "$file" | cut -d'/' -f3)
+        if [ ! -f ".pig/commits/$((counter -1))/$fileName" ] || ! cmp -s "$file" ".pig/commits/$((counter -1))/$fileName"
+        then
+            successfull=true
+        fi
+    fi
+done
+
+if [ "$successfull" = "true" ]
+then
+    for file in ".pig"/*
+    do 
+        if [ -f "$file" ] 
+        then
+            rm "$file" 
+        fi 
+    done 
+    mkdir ".pig/commits/$counter"
+    for file in ".pig/index"/* 
+    do 
+        if [ -f "$file" ]
+        then 
+            cp "$file" ".pig/commits/$counter"
+            cp "$file" ".pig"
+        fi
+    done
+    mkdir ".pig/commits/$counter/message"
+    echo "$message" >> ".pig/commits/$counter/message/message.txt"
+    echo "$counter $message" | cat - ".pig/log/log.txt" > temp && mv temp ".pig/log/log.txt"
+    echo "Committed as commit $counter"
+else 
+    echo "nothing to commit"
+fi

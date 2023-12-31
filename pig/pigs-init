@@ -1,0 +1,19 @@
+#!/bin/dash
+
+PATH=$PATH:.
+
+if test -d ".pig"
+then
+    echo "pigs-init: error: .pig already exists"
+    exit 1
+fi
+
+mkdir .pig
+mkdir .pig/index
+mkdir .pig/commits
+mkdir .pig/log
+touch .pig/log/log.txt
+mkdir .pig/status
+touch .pig/status/status.txt
+    
+echo "Initialized empty pigs repository in .pig"

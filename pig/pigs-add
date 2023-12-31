@@ -1,0 +1,23 @@
+#!/bin/dash
+
+PATH=$PATH:.
+
+if [ -d ".pig" ]
+then
+    for file in "$@"
+    do 
+        if [ -f "$file" ]
+        then 
+            cp "$file" ".pig/index"
+        elif [ -f ".pig/index/$file" ]
+        then
+            rm ".pig/index/$file"
+        else 
+            echo "pigs-add: error: can not open '$file'"
+        fi
+    done
+else 
+   echo "pigs-add: error: pigs repository directory .pig not found"
+   exit 1 
+fi
+

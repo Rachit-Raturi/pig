@@ -1,0 +1,11 @@
+#!/bin/dash
+
+PATH=$PATH:.
+
+if [ ! -d ".pig" ]
+then 
+    echo "pigs-log: error: pigs repository directory .pig not found"
+    exit 1 
+fi 
+
+cat < .pig/log/log.txt
